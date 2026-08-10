@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <title>Board</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background-color: #000;
+            color: #fff;
+            font-family: 'Times New Roman', Times, serif;
+            padding: 20px;
+            padding-bottom: 90px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin: 10px 0 20px;
+        }
+
+        .rule {
+            border: none;
+            border-top: 3px double #fff;
+            max-width: 1200px;
+            margin: 10px auto;
+        }
+
+        .nav {
+            text-align: center;
+            margin: 10px auto;
+            font-size: 1rem;
+        }
+
+        .nav a, .nav button {
+            color: #6fa8ff;
+            text-decoration: underline;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: inherit;
+            font-size: inherit;
+            padding: 0;
+        }
+
+        .nav a:visited, .nav button:visited {
+            color: #b28fff;
+        }
+
+        .wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        ul.thread {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        ul.thread ul.thread {
+            padding-left: 28px;
+            margin-top: 4px;
+        }
+
+        li.post {
+            margin: 6px 0;
+        }
+
+        .bullet {
+            display: inline-block;
+            width: 14px;
+        }
+
+        .post-line a.subject {
+            color: #6fa8ff;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .post-line a.subject:visited {
+            color: #b28fff;
+        }
+
+        .author {
+            font-weight: bold;
+        }
+
+        .timestamp {
+            font-style: italic;
+        }
+
+        .count {
+            color: #ccc;
+        }
+
+        .reply-link, .toggle-link {
+            color: #999;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-left: 6px;
+        }
+
+        .post-body {
+            margin: 4px 0 6px 16px;
+            padding: 8px 12px;
+            border-left: 2px solid #444;
+            white-space: pre-wrap;
+            font-size: 0.95rem;
+            color: #ddd;
+            display: none;
+        }
+
+        .post-body.open {
+            display: block;
+        }
+
+        .panel {
+            display: none;
+            max-width: 600px;
+            margin: 20px auto;
+            border: 1px solid #444;
+            padding: 16px;
+            background: #000;
+        }
+
+        .panel.open {
+            display: block;
+        }
+
+        .panel h2 {
+            margin-top: 0;
+            font-size: 1.2rem;
+        }
+
+        .composer {
+            display: none;
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #000;
+            border-top: 1px solid #444;
+            padding: 10px 16px;
+            align-items: flex-end;
+            gap: 10px;
+            z-index: 50;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .composer.open {
+            display: flex;
+        }
+
+        .composer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .composer-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .composer-reply {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 4px;
+            min-height: 1em;
+        }
+
+        .composer textarea {
+            width: 100%;
+            background: #000;
+            border: 1px solid #444;
+            color: #fff;
+            font-family: inherit;
+            font-size: 1rem;
+            padding: 8px;
+            resize: none;
+            height: 40px;
+            line-height: 1.3;
+        }
+
+        .composer textarea:focus {
+            outline: none;
+            border-color: #666;
+        }
+
+        .composer button {
+            font-family: inherit;
+            background: #1a1a1a;
+            border: 1px solid #555;
+            color: #ddd;
+            padding: 8px 16px;
+            cursor: pointer;
+            height: 40px;
+        }
+
+        .composer button:hover {
+            background: #262626;
+            color: #fff;
+        }
+
+        .composer-close {
+            background: none !important;
+            border: none !important;
+            color: #666 !important;
+            padding: 8px 4px !important;
+            font-size: 1.1rem;
+        }
+
+        .hp-field {
+            position: absolute;
+            left: -9999px;
+            opacity: 0;
+        }
+
+        .faq-text {
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .faq-text p {
+            margin: 0 0 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #555;
+            margin: 30px 0;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>Board</h1>
+
+    <hr class="rule" />
+    <div class="nav">
+        [ <button id="postMsgBtn">Post Message</button> ]
+        [ <button id="faqBtn">FAQ</button> ]
+    </div>
+    <hr class="rule" />
+
+    <div class="wrap">
+
+        <div class="panel" id="faqPanel">
+            <h2>FAQ</h2>
+            <div class="faq-text">
+                <p><strong>Who can post here?</strong> Anyone.</p>
+                <p><strong>Are posts moderated?</strong> No.</p>
+                <p><strong>How do I reply to a message?</strong> Click "reply" next to the message you want to answer.</p>
+                <p><strong>Can I delete my post?</strong> No.</p>
+            </div>
+        </div>
+
+        <div id="feed">
+            <div class="empty-state">loading...</div>
+        </div>
+    </div>
+
+    <div class="composer" id="composer">
+        <div class="composer-inner">
+            <div class="composer-col">
+                <div class="composer-reply" id="composerReplyContext"></div>
+                <textarea id="fMessage" maxlength="5000"></textarea>
+            </div>
+            <input type="text" class="hp-field" id="fHp" tabindex="-1" autocomplete="off" />
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const SUPABASE_URL = 'https://ufaiesagbyriyvqvxqyo.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_DULGiiO82jU3nOWVnFrt1Q_BTu3QTJy';
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const feedEl = document.getElementById('feed');
+        const composer = document.getElementById('composer');
+        const faqPanel = document.getElementById('faqPanel');
+        const postMsgBtn = document.getElementById('postMsgBtn');
+        const faqBtn = document.getElementById('faqBtn');
+        const replyContextEl = document.getElementById('composerReplyContext');
+        const fMessage = document.getElementById('fMessage');
+        const fHp = document.getElementById('fHp');
+
+        let allPosts = [];
+        let replyToId = null;
+        const BULLETS = ['&#9679;', '&#9675;', '&#9642;', '&#8226;'];
+        const ownPostIds = new Set();
+
+        let audioCtx = null;
+        function getAudioCtx() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioCtx;
+        }
+        ['click', 'keydown', 'touchstart'].forEach(evt => {
+            document.addEventListener(evt, () => {
+                const ctx = getAudioCtx();
+                if (ctx.state === 'suspended') ctx.resume();
+            }, { once: false });
+        });
+
+        function playNotifySound() {
+            try {
+                const ctx = getAudioCtx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = 880;
+                gain.gain.setValueAtTime(0.18, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.35);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.35);
+            } catch (e) {
+                console.error('notify sound failed', e);
+            }
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function generateAnonId() {
+            return Math.random().toString(16).slice(2, 6);
+        }
+
+        function deriveSubject(message, isReply) {
+            const firstLine = message.split('\n')[0].trim();
+            const truncated = firstLine.length > 50 ? firstLine.slice(0, 50) + '…' : firstLine;
+            return isReply ? `Re: ${truncated}` : truncated || '(no subject)';
+        }
+
+        function formatTimestamp(dateStr) {
+            const d = new Date(dateStr);
+            const pad = (n) => String(n).padStart(2, '0');
+            const hh = pad(d.getHours());
+            const mm = pad(d.getMinutes());
+            const ss = pad(d.getSeconds());
+            const mo = pad(d.getMonth() + 1);
+            const dd = pad(d.getDate());
+            const yy = pad(d.getFullYear() % 100);
+            return `${hh}:${mm}:${ss} ${mo}/${dd}/${yy}`;
+        }
+
+        function buildTree(posts) {
+            const byId = new Map();
+            posts.forEach(p => byId.set(p.id, { ...p, children: [] }));
+            const roots = [];
+            byId.forEach(p => {
+                if (p.parent_id && byId.has(p.parent_id)) {
+                    byId.get(p.parent_id).children.push(p);
+                } else {
+                    roots.push(p);
+                }
+            });
+            
+            const sortDesc = (arr) => arr.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            sortDesc(roots);
+            byId.forEach(p => sortDesc(p.children));
+            return roots;
+        }
+
+        function countDescendants(node) {
+            let count = node.children.length;
+            for (const child of node.children) {
+                count += countDescendants(child);
+            }
+            return count;
+        }
+
+        function renderNode(node, depth) {
+            const bullet = BULLETS[Math.min(depth, BULLETS.length - 1)];
+            const total = countDescendants(node);
+            const li = document.createElement('li');
+            li.className = 'post';
+            li.innerHTML = `
+                <span class="bullet">${bullet}</span>
+                <a class="subject" data-id="${node.id}">${escapeHtml(node.subject)}</a>
+                - <span class="author">${escapeHtml(node.author)}</span>
+                <span class="timestamp">${formatTimestamp(node.created_at)}</span>
+                (${total})
+                <span class="reply-link" data-reply-id="${node.id}" data-reply-subject="${escapeHtml(node.subject)}">reply</span>
+                <div class="post-body" id="body-${node.id}">${escapeHtml(node.message)}</div>
+            `;
+
+            if (node.children.length > 0) {
+                const ul = document.createElement('ul');
+                ul.className = 'thread';
+                node.children.forEach(child => {
+                    ul.appendChild(renderNode(child, depth + 1));
+                });
+                li.appendChild(ul);
+            }
+
+            return li;
+        }
+
+        function renderFeed() {
+            feedEl.innerHTML = '';
+            if (allPosts.length === 0) {
+                feedEl.innerHTML = '<div class="empty-state">no messages yet. be the first.</div>';
+                return;
+            }
+            const tree = buildTree(allPosts);
+            const ul = document.createElement('ul');
+            ul.className = 'thread';
+            tree.forEach(root => ul.appendChild(renderNode(root, 0)));
+            feedEl.appendChild(ul);
+        }
+
+        async function loadPosts() {
+            const { data, error } = await supabase
+                .from('board_posts')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                feedEl.innerHTML = '<div class="empty-state">failed to load board</div>';
+                console.error(error);
+                return;
+            }
+            allPosts = data || [];
+            renderFeed();
+        }
+
+        function closeComposer() {
+            composer.classList.remove('open');
+        }
+
+        function closeFaq() {
+            faqPanel.classList.remove('open');
+        }
+
+        function openComposer(replyId = null, replySubject = null) {
+            closeFaq();
+            replyToId = replyId;
+            replyContextEl.textContent = replyId ? `Replying to: ${replySubject}` : '';
+            composer.classList.add('open');
+            fMessage.focus();
+        }
+
+        postMsgBtn.addEventListener('click', () => {
+            if (composer.classList.contains('open')) {
+                closeComposer();
+                replyToId = null;
+                replyContextEl.textContent = '';
+            } else {
+                openComposer();
+            }
+        });
+
+        fMessage.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                submitMessage();
+            }
+        });
+
+        faqBtn.addEventListener('click', () => {
+            const isOpen = faqPanel.classList.contains('open');
+            closeFaq();
+            if (!isOpen) faqPanel.classList.add('open');
+        });
+
+        feedEl.addEventListener('click', (e) => {
+            if (e.target.classList.contains('reply-link')) {
+                const id = e.target.dataset.replyId;
+                const isSameReplyOpen = composer.classList.contains('open') && replyToId === id;
+                if (isSameReplyOpen) {
+                    closeComposer();
+                    replyToId = null;
+                    replyContextEl.textContent = '';
+                } else {
+                    openComposer(id, e.target.dataset.replySubject);
+                }
+            }
+            if (e.target.classList.contains('subject')) {
+                const id = e.target.dataset.id;
+                const body = document.getElementById(`body-${id}`);
+                if (body) body.classList.toggle('open');
+            }
+        });
+
+        async function submitMessage() {
+            const author = `Anonymous #${generateAnonId()}`;
+            const message = fMessage.value.trim();
+            const replyId = replyToId;
+
+            if (fHp.value.trim() !== '') {
+                fMessage.value = '';
+                return;
+            }
+
+            if (!message) {
+                return;
+            }
+
+            const subject = deriveSubject(message, !!replyId);
+
+            const tempId = `temp-${Math.random().toString(36).slice(2)}`;
+            const optimisticPost = {
+                id: tempId,
+                parent_id: replyId,
+                author,
+                subject,
+                message,
+                created_at: new Date().toISOString()
+            };
+            allPosts.push(optimisticPost);
+            renderFeed();
+
+            fMessage.value = '';
+            replyToId = null;
+            replyContextEl.textContent = '';
+            fMessage.focus();
+
+            const { data, error } = await supabase
+                .from('board_posts')
+                .insert({ author, subject, message, parent_id: replyId })
+                .select()
+                .single();
+
+            if (error) {
+                allPosts = allPosts.filter(p => p.id !== tempId);
+                renderFeed();
+                console.error(error);
+                return;
+            }
+
+            const idx = allPosts.findIndex(p => p.id === tempId);
+            if (idx !== -1) {
+                allPosts[idx] = data;
+            }
+            ownPostIds.add(data.id);
+            renderFeed();
+        }
+
+        supabase
+            .channel('board-feed')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'board_posts' }, (payload) => {
+                const tempIdx = allPosts.findIndex(p =>
+                    typeof p.id === 'string' && p.id.startsWith('temp-') &&
+                    p.message === payload.new.message && p.parent_id === payload.new.parent_id
+                );
+                if (tempIdx !== -1) {
+                    allPosts[tempIdx] = payload.new;
+                    ownPostIds.add(payload.new.id);
+                    renderFeed();
+                    return;
+                }
+
+                const exists = allPosts.some(p => p.id === payload.new.id);
+                if (!exists) {
+                    allPosts.push(payload.new);
+                    renderFeed();
+                    if (!ownPostIds.has(payload.new.id)) {
+                        playNotifySound();
+                    }
+                }
+            })
+            .subscribe();
+
+        loadPosts();
+    </script>
+</body>
+</html>
