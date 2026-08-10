@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow, noarchive" />
-    <title>Board</title>
+    <title>k̦ͅ0nf@4ch</title>
     <style>
         * {
             box-sizing: border-box;
@@ -183,6 +183,119 @@
             min-height: 1em;
         }
 
+        .composer-toprow {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .nickname-input {
+            background: #000;
+            border: 1px solid #444;
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.9rem;
+            padding: 6px 8px;
+            width: 180px;
+        }
+
+        .nickname-input:focus {
+            outline: none;
+            border-color: #666;
+        }
+
+        .attach-toggle {
+            color: #6fa8ff;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.85rem;
+            user-select: none;
+        }
+
+        .attach-toggle:hover {
+            color: #8fbaff;
+        }
+
+        .attach-panel {
+            display: none;
+            border: 1px solid #333;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #000;
+        }
+
+        .attach-panel.open {
+            display: block;
+        }
+
+        .attach-panel label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
+
+        .attach-panel input[type="text"] {
+            flex: 1;
+            background: #000;
+            border: 1px solid #444;
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.85rem;
+            padding: 6px 8px;
+        }
+
+        .attach-panel input[type="text"]:focus {
+            outline: none;
+            border-color: #666;
+        }
+
+        .attach-panel input[type="file"] {
+            color: #aaa;
+            font-size: 0.8rem;
+            font-family: inherit;
+        }
+
+        .attach-hint {
+            font-size: 0.75rem;
+            color: #555;
+            margin-top: 4px;
+        }
+
+        .attach-preview {
+            margin-top: 8px;
+        }
+
+        .attach-preview img, .attach-preview video {
+            max-width: 160px;
+            max-height: 120px;
+            display: block;
+            border: 1px solid #333;
+        }
+
+        .attach-remove {
+            color: #a55;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-top: 4px;
+            display: inline-block;
+        }
+
+        .post-media {
+            margin: 6px 0 6px 16px;
+        }
+
+        .post-media img, .post-media video {
+            max-width: 100%;
+            max-height: 400px;
+            border: 1px solid #333;
+            display: block;
+        }
+
         .composer textarea {
             width: 100%;
             background: #000;
@@ -248,7 +361,7 @@
     </style>
 </head>
 <body>
-    <h1>Board</h1>
+    <h1>k̦ͅ0nf@4ch</h1>
 
     <hr class="rule" />
     <div class="nav">
@@ -262,10 +375,9 @@
         <div class="panel" id="faqPanel">
             <h2>FAQ</h2>
             <div class="faq-text">
-                <p><strong>Who can post here?</strong> Anyone.</p>
-                <p><strong>Are posts moderated?</strong> No.</p>
-                <p><strong>How do I reply to a message?</strong> Click "reply" next to the message you want to answer.</p>
-                <p><strong>Can I delete my post?</strong> No.</p>
+                <p><strong>1.</strong> подумайте.</p>
+                <p><strong>2.</strong> подумайте.</p>
+                <p><strong>3.</strong> подумайте.</p>
             </div>
         </div>
 
@@ -278,6 +390,16 @@
         <div class="composer-inner">
             <div class="composer-col">
                 <div class="composer-reply" id="composerReplyContext"></div>
+                <div class="composer-toprow">
+                    <input type="text" id="fNickname" class="nickname-input" placeholder="nickname (optional)" maxlength="30" autocomplete="off" />
+                    <span class="attach-toggle" id="attachToggle">+ attach photo/video/gif</span>
+                </div>
+                <div class="attach-panel" id="attachPanel">
+                    <label>From URL: <input type="text" id="fMediaUrl" placeholder="https://..." /></label>
+                    <label>From Computer: <input type="file" id="fMediaFile" accept="image/*,video/*" /></label>
+                    <div class="attach-hint">Paste a direct link to an image/gif/video, or upload a file from your device.</div>
+                    <div class="attach-preview" id="attachPreview"></div>
+                </div>
                 <textarea id="fMessage" maxlength="5000"></textarea>
             </div>
             <input type="text" class="hp-field" id="fHp" tabindex="-1" autocomplete="off" />
@@ -287,8 +409,8 @@
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-        const SUPABASE_URL = 'https://hszntidcxglhquedvous.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_Qv8uYlNXYEXpiCJEL_qD7w_857pEH0I';
+        const SUPABASE_URL = 'https://ufaiesagbyriyvqvxqyo.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_DULGiiO82jU3nOWVnFrt1Q_BTu3QTJy';
 
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -300,6 +422,71 @@
         const replyContextEl = document.getElementById('composerReplyContext');
         const fMessage = document.getElementById('fMessage');
         const fHp = document.getElementById('fHp');
+        const fNickname = document.getElementById('fNickname');
+        const attachToggle = document.getElementById('attachToggle');
+        const attachPanel = document.getElementById('attachPanel');
+        const fMediaUrl = document.getElementById('fMediaUrl');
+        const fMediaFile = document.getElementById('fMediaFile');
+        const attachPreview = document.getElementById('attachPreview');
+
+        let pendingFile = null;
+
+        const NICKNAME_KEY = 'board_nickname';
+        fNickname.value = localStorage.getItem(NICKNAME_KEY) || '';
+        fNickname.addEventListener('input', () => {
+            localStorage.setItem(NICKNAME_KEY, fNickname.value.trim());
+        });
+
+        attachToggle.addEventListener('click', () => {
+            attachPanel.classList.toggle('open');
+        });
+
+        function isVideoUrl(url) {
+            return /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(url);
+        }
+
+        function renderAttachPreview(url, isLocalFile) {
+            attachPreview.innerHTML = '';
+            if (!url) return;
+            const media = isVideoUrl(url)
+                ? document.createElement('video')
+                : document.createElement('img');
+            if (media.tagName === 'VIDEO') {
+                media.controls = true;
+            }
+            media.src = url;
+            attachPreview.appendChild(media);
+            const remove = document.createElement('span');
+            remove.className = 'attach-remove';
+            remove.textContent = 'remove attachment';
+            remove.addEventListener('click', () => {
+                pendingFile = null;
+                fMediaFile.value = '';
+                fMediaUrl.value = '';
+                attachPreview.innerHTML = '';
+            });
+            attachPreview.appendChild(remove);
+        }
+
+        fMediaFile.addEventListener('change', () => {
+            const file = fMediaFile.files[0];
+            if (!file) return;
+            pendingFile = file;
+            fMediaUrl.value = '';
+            const objectUrl = URL.createObjectURL(file);
+            renderAttachPreview(objectUrl, true);
+        });
+
+        fMediaUrl.addEventListener('input', () => {
+            const url = fMediaUrl.value.trim();
+            if (url) {
+                pendingFile = null;
+                fMediaFile.value = '';
+                renderAttachPreview(url, false);
+            } else if (!pendingFile) {
+                attachPreview.innerHTML = '';
+            }
+        });
 
         let allPosts = [];
         let replyToId = null;
@@ -392,6 +579,15 @@
             return count;
         }
 
+        function renderMedia(url) {
+            if (!url) return '';
+            const safeUrl = escapeHtml(url);
+            if (isVideoUrl(url)) {
+                return `<div class="post-media"><video src="${safeUrl}" controls></video></div>`;
+            }
+            return `<div class="post-media"><img src="${safeUrl}" alt="" loading="lazy"></div>`;
+        }
+
         function renderNode(node, depth) {
             const bullet = BULLETS[Math.min(depth, BULLETS.length - 1)];
             const total = countDescendants(node);
@@ -404,7 +600,7 @@
                 <span class="timestamp">${formatTimestamp(node.created_at)}</span>
                 (${total})
                 <span class="reply-link" data-reply-id="${node.id}" data-reply-subject="${escapeHtml(node.subject)}">reply</span>
-                <div class="post-body" id="body-${node.id}">${escapeHtml(node.message)}</div>
+                <div class="post-body" id="body-${node.id}">${escapeHtml(node.message)}${node.message && node.media_url ? '<br>' : ''}${renderMedia(node.media_url)}</div>
             `;
 
             if (node.children.length > 0) {
@@ -506,28 +702,33 @@
         });
 
         async function submitMessage() {
-            const author = `Anonymous #${generateAnonId()}`;
+            const nickname = fNickname.value.trim();
+            const author = nickname ? nickname.slice(0, 30) : `Anonymous #${generateAnonId()}`;
             const message = fMessage.value.trim();
             const replyId = replyToId;
+            const urlInput = fMediaUrl.value.trim();
+            const fileToUpload = pendingFile;
 
             if (fHp.value.trim() !== '') {
                 fMessage.value = '';
                 return;
             }
 
-            if (!message) {
+            if (!message && !urlInput && !fileToUpload) {
                 return;
             }
 
-            const subject = deriveSubject(message, !!replyId);
+            const subject = deriveSubject(message || '(attachment)', !!replyId);
 
             const tempId = `temp-${Math.random().toString(36).slice(2)}`;
+            const previewMediaUrl = fileToUpload ? URL.createObjectURL(fileToUpload) : (urlInput || null);
             const optimisticPost = {
                 id: tempId,
                 parent_id: replyId,
                 author,
                 subject,
                 message,
+                media_url: previewMediaUrl,
                 created_at: new Date().toISOString()
             };
             allPosts.push(optimisticPost);
@@ -536,11 +737,31 @@
             fMessage.value = '';
             replyToId = null;
             replyContextEl.textContent = '';
+            fMediaUrl.value = '';
+            fMediaFile.value = '';
+            pendingFile = null;
+            attachPreview.innerHTML = '';
             fMessage.focus();
+
+            let finalMediaUrl = urlInput || null;
+            if (fileToUpload) {
+                const path = `${Date.now()}-${Math.random().toString(36).slice(2)}-${fileToUpload.name}`;
+                const { error: uploadError } = await supabase
+                    .storage
+                    .from('board-media')
+                    .upload(path, fileToUpload);
+
+                if (uploadError) {
+                    console.error(uploadError);
+                } else {
+                    const { data: pub } = supabase.storage.from('board-media').getPublicUrl(path);
+                    finalMediaUrl = pub.publicUrl;
+                }
+            }
 
             const { data, error } = await supabase
                 .from('board_posts')
-                .insert({ author, subject, message, parent_id: replyId })
+                .insert({ author, subject, message, parent_id: replyId, media_url: finalMediaUrl })
                 .select()
                 .single();
 
